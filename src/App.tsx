@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import SubmitRecipe from "./pages/SubmitRecipe";
+import EditRecipe from "./pages/EditRecipe";
 import RecipeDetail from "./pages/RecipeDetail";
 import MyRecipes from "./pages/MyRecipes";
 import SavedRecipes from "./pages/SavedRecipes";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/submit" element={<SubmitRecipe />} />
+            <Route path="/recipe/:id/edit" element={<EditRecipe />} />
             <Route path="/recipe/:id" element={<RecipeDetail />} />
             <Route path="/my-recipes" element={<MyRecipes />} />
             <Route path="/saved" element={<SavedRecipes />} />
