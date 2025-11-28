@@ -19,10 +19,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Handle password recovery - redirect to profile page
+        if (event === "PASSWORD_RECOVERY") {
+          window.location.hash = "#/profile";
+        }
       }
     );
 
