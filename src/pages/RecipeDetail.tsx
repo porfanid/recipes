@@ -173,10 +173,11 @@ const RecipeDetail = () => {
       });
       navigate("/my-recipes");
     },
-    onError: () => {
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete recipe. Please try again.";
       toast({
         title: "Error",
-        description: "Failed to delete recipe. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },

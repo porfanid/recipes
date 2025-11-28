@@ -79,10 +79,11 @@ const MyRecipes = () => {
       setDeleteDialogOpen(false);
       setRecipeToDelete(null);
     },
-    onError: () => {
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete recipe. Please try again.";
       toast({
         title: "Error",
-        description: "Failed to delete recipe. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -103,7 +104,7 @@ const MyRecipes = () => {
   const approvedRecipes = recipes?.filter((r) => r.status === "approved") || [];
   const rejectedRecipes = recipes?.filter((r) => r.status === "rejected") || [];
 
-  const renderRecipeCard = (recipe: typeof recipes extends (infer T)[] | undefined ? T : never) => (
+  const renderRecipeCard = (recipe: NonNullable<typeof recipes>[number]) => (
     <div key={recipe.id} className="relative group">
       <RecipeCard
         id={recipe.id}
