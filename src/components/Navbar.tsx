@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useUserRole } from "@/hooks/useUserRole";
-import { ChefHat, Plus, User, LogOut, Shield } from "lucide-react";
+import { ChefHat, Plus, User, LogOut, Shield, UtensilsCrossed } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +24,13 @@ export const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-4">
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/recipes" className="flex items-center gap-2">
+              <UtensilsCrossed className="h-4 w-4" />
+              View Recipes
+            </Link>
+          </Button>
+
           {user ? (
             <>
               <Button asChild variant="default" size="sm">
