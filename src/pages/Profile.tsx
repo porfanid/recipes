@@ -101,21 +101,35 @@ const Profile = () => {
     setUploadingAvatar(true);
 
     try {
+      // Delete old avatar if exists
+      if (avatarUrl) {
+        try {
+          // Extract the file path from the URL
+          const urlParts = avatarUrl.split('/avatars/');
+          if (urlParts.length > 1) {
+            const oldFilePath = urlParts[1];
+            await supabase.storage.from('avatars').remove([oldFilePath]);
+          }
+        } catch {
+          // Ignore errors when deleting old avatar
+        }
+      }
+
       // Upload file to Supabase Storage
-      const fileExt = file.name.split('.').pop();
+      const fileNameParts = file.name.split('.');
+      const fileExt = fileNameParts.length > 1 ? fileNameParts.pop() : 'jpg';
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, { upsert: true });
+        .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('avatars')
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       const newAvatarUrl = urlData.publicUrl;
 
