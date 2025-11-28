@@ -6,78 +6,79 @@
 
 @layer base {
   :root {
-    /* Warm cream background */
-    --background: 38 35% 96%;
-    --foreground: 25 40% 20%;
+    /* Light background with slight blue tint */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 25 40% 20%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 25 40% 20%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Terra cotta primary */
-    --primary: 15 75% 55%;
+    /* Primary blue */
+    --primary: 217 90% 56%;
     --primary-foreground: 0 0% 100%;
 
-    /* Soft peach secondary */
-    --secondary: 25 70% 85%;
-    --secondary-foreground: 25 40% 20%;
+    /* Soft blue secondary */
+    --secondary: 210 55% 92%;
+    --secondary-foreground: 222 47% 20%;
 
-    --muted: 35 25% 90%;
-    --muted-foreground: 25 20% 45%;
+    /* Muted grey-blue */
+    --muted: 210 25% 90%;
+    --muted-foreground: 222 20% 45%;
 
-    /* Warm orange accent */
-    --accent: 30 85% 60%;
+    /* Slightly darker blue accent */
+    --accent: 225 75% 65%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 55%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 20% 85%;
-    --input: 35 20% 85%;
-    --ring: 15 75% 55%;
+    --border: 213 27% 85%;
+    --input: 213 27% 85%;
+    --ring: 217 90% 56%;
 
     --radius: 0.75rem;
 
-    /* Custom food-themed colors */
-    --spice: 25 80% 50%;
-    --herb: 120 40% 45%;
-    --warmth: 35 90% 65%;
+    /* Custom “food theme” replacements in blue tones */
+    --spice: 215 85% 60%;   /* vivid blue */
+    --herb: 190 50% 45%;    /* teal-ish blue */
+    --warmth: 210 80% 85%;  /* soft baby blue */
   }
 
   .dark {
-    --background: 25 25% 12%;
-    --foreground: 38 35% 95%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 25 20% 15%;
-    --card-foreground: 38 35% 95%;
+    --card: 222 47% 14%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 25 20% 15%;
-    --popover-foreground: 38 35% 95%;
+    --popover: 222 47% 14%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 15 75% 55%;
+    --primary: 217 90% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 25% 25%;
-    --secondary-foreground: 38 35% 95%;
+    --secondary: 222 30% 25%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 25 20% 20%;
-    --muted-foreground: 35 15% 60%;
+    --muted: 222 25% 20%;
+    --muted-foreground: 210 20% 70%;
 
-    --accent: 30 85% 60%;
+    --accent: 225 75% 65%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 60% 50%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 25 20% 25%;
-    --input: 25 20% 25%;
-    --ring: 15 75% 55%;
+    --border: 222 25% 25%;
+    --input: 222 25% 25%;
+    --ring: 217 90% 60%;
 
-    --spice: 25 80% 50%;
-    --herb: 120 40% 55%;
-    --warmth: 35 90% 65%;
+    --spice: 215 80% 65%;
+    --herb: 190 50% 55%;
+    --warmth: 210 80% 25%;
   }
 }
 
