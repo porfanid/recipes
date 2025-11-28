@@ -37,6 +37,7 @@ const Profile = () => {
   const [bio, setBio] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const fetchProfile = useCallback(async () => {
     if (!user) return;
@@ -115,6 +116,7 @@ const Profile = () => {
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingPassword(true);
+    setPasswordError(null);
 
     try {
       const validated = passwordSchema.parse({ newPassword, confirmPassword });
@@ -123,7 +125,20 @@ const Profile = () => {
         password: validated.newPassword,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific Supabase auth errors
+        let userFriendlyMessage = error.message;
+        
+        if (error.message.includes("same as old password")) {
+          userFriendlyMessage = "New password must be different from your current password.";
+        } else if (error.message.includes("weak password")) {
+          userFriendlyMessage = "Password is too weak. Please use a stronger password.";
+        } else if (error.message.includes("session")) {
+          userFriendlyMessage = "Your session has expired. Please request a new password reset link.";
+        }
+        
+        throw new Error(userFriendlyMessage);
+      }
 
       toast({
         title: "Password updated!",
@@ -132,7 +147,15 @@ const Profile = () => {
       setNewPassword("");
       setConfirmPassword("");
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to update password";
+      let errorMessage = "Failed to update password";
+      
+      if (error instanceof z.ZodError) {
+        errorMessage = error.errors[0]?.message || errorMessage;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      setPasswordError(errorMessage);
       toast({
         title: "Error",
         description: errorMessage,
@@ -246,7 +269,10 @@ const Profile = () => {
                     type="password"
                     placeholder="••••••••"
                     value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    onChange={(e) => {
+                      setNewPassword(e.target.value);
+                      setPasswordError(null);
+                    }}
                     required
                   />
                 </div>
@@ -257,10 +283,16 @@ const Profile = () => {
                     type="password"
                     placeholder="••••••••"
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      setPasswordError(null);
+                    }}
                     required
                   />
                 </div>
+                {passwordError && (
+                  <p className="text-sm text-destructive">{passwordError}</p>
+                )}
                 <Button type="submit" disabled={savingPassword}>
                   <Lock className="h-4 w-4 mr-2" />
                   {savingPassword ? "Updating..." : "Update Password"}

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,35 +18,12 @@ const authSchema = z.object({
 
 const Auth = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-
-  // Check for auth errors in URL query params (redirected from main.tsx)
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const error = searchParams.get("error");
-    const errorDescription = searchParams.get("error_description");
-    
-    if (error) {
-      const message = errorDescription 
-        ? decodeURIComponent(errorDescription.replace(/\+/g, " "))
-        : "An authentication error occurred";
-      
-      toast({
-        title: "Authentication Error",
-        description: message + ". Please request a new password reset link.",
-        variant: "destructive",
-      });
-      
-      // Clean up the URL
-      navigate("/auth", { replace: true });
-    }
-  }, [location.search, toast, navigate]);
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();

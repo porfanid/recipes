@@ -2,22 +2,15 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// Handle Supabase auth errors/callbacks before React renders
-// This fixes issues with HashRouter when Supabase redirects with error params like #error=...
+// Handle Supabase auth callbacks before React renders
+// Supabase redirects with hash fragments like #access_token=... or #error=...
+// We need to redirect these to our /auth/callback route for proper handling
 const hash = window.location.hash;
 if (hash && !hash.startsWith("#/")) {
-  // Check if this is an auth error (e.g., #error=access_denied&error_code=otp_expired)
-  if (hash.includes("error=")) {
-    // Preserve error params but redirect to a valid route
-    const errorParams = hash.substring(1); // Remove the leading #
-    window.location.hash = `#/auth?${errorParams}`;
-  } 
-  // Check if this is a successful auth callback (e.g., #access_token=...)
-  else if (hash.includes("access_token=") || hash.includes("type=recovery")) {
-    // Let Supabase handle the tokens, then redirect to home
-    // The AuthProvider will detect PASSWORD_RECOVERY and redirect to profile
-    window.location.hash = "#/";
-  }
+  // This is a Supabase auth callback (not a React Router hash route)
+  // Redirect to /auth/callback while preserving the auth params
+  const authParams = hash.substring(1); // Remove leading #
+  window.location.hash = `#/auth/callback#${authParams}`;
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
