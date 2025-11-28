@@ -5,7 +5,7 @@ This document explains how to deploy this application to GitHub Pages using GitH
 ## Changes Made
 
 ### 1. Hash Router Implementation
-The application now uses `HashRouter` instead of `BrowserRouter` in `src/App.tsx`. This is necessary because GitHub Pages serves static files and doesn't support client-side routing with the History API. Hash routing uses URL fragments (e.g., `https://username.github.io/recipes/#/auth`) which work perfectly with static hosting.
+The application now uses `HashRouter` instead of `BrowserRouter` in `src/App.tsx`. This is necessary because GitHub Pages serves static files and doesn't support client-side routing with the History API. Hash routing uses URL fragments (e.g., `https://username.github.io/repository-name/#/auth`) which work perfectly with static hosting.
 
 ### 2. GitHub Actions Workflow
 A deployment workflow has been added at `.github/workflows/deploy.yml` that automatically builds and deploys the application to GitHub Pages when you push to the `main` branch.
@@ -34,7 +34,7 @@ Once GitHub Pages is configured to use GitHub Actions:
 After the workflow completes successfully:
 
 1. Go to **Settings** > **Pages**
-2. You'll see a message like: "Your site is live at `https://username.github.io/recipes/`"
+2. You'll see a message like: "Your site is live at `https://username.github.io/repository-name/`"
 3. Click the URL to visit your deployed application
 
 ## How It Works
@@ -76,17 +76,16 @@ You can also trigger a deployment manually:
   3. Add your secrets (e.g., `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`)
   4. Update the workflow to use these secrets in the build step if needed
 
-Example for adding environment variables to the workflow:
-```yaml
-- name: Build
-  run: npm run build
-  env:
-    VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-    VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-```
+Example for adding environment variables to the workflow (update the Build step in `.github/workflows/deploy.yml`):
+
+    - name: Build
+      run: npm run build
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
 ## Notes
 
-- The hash router means URLs will look like `https://username.github.io/recipes/#/recipe/123` instead of `https://username.github.io/recipes/recipe/123`
+- The hash router means URLs will look like `https://username.github.io/repository-name/#/recipe/123` instead of `https://username.github.io/repository-name/recipe/123`
 - This is a trade-off for simplicity - the alternative would require a custom 404.html workaround
 - All internal navigation and deep linking will work correctly with hash routing
