@@ -47,7 +47,7 @@ const MyRecipes = () => {
 
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("id, username")
+        .select("id, username, avatar_url")
         .eq("id", user.id)
         .single();
 
@@ -116,6 +116,7 @@ const MyRecipes = () => {
         servings={recipe.servings}
         tags={recipe.tags}
         authorUsername={recipe.profiles?.username || "You"}
+        authorAvatarUrl={recipe.profiles?.avatar_url}
       />
       <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <Button

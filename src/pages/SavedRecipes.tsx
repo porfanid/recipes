@@ -40,7 +40,7 @@ const SavedRecipes = () => {
       const authorIds = [...new Set(recipesData?.map(r => r.author_id) || [])];
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("id, username")
+        .select("id, username, avatar_url")
         .in("id", authorIds);
 
       if (profilesError) throw profilesError;
@@ -86,6 +86,7 @@ const SavedRecipes = () => {
                 servings={recipe.servings}
                 tags={recipe.tags}
                 authorUsername={recipe.profiles?.username || "Unknown"}
+                authorAvatarUrl={recipe.profiles?.avatar_url}
               />
             ))}
           </div>

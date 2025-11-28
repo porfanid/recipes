@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users } from "lucide-react";
 
@@ -13,6 +14,7 @@ interface RecipeCardProps {
   servings: number | null;
   tags: string[] | null;
   authorUsername: string;
+  authorAvatarUrl?: string | null;
 }
 
 export const RecipeCard = ({
@@ -25,6 +27,7 @@ export const RecipeCard = ({
   servings,
   tags,
   authorUsername,
+  authorAvatarUrl,
 }: RecipeCardProps) => {
   const totalTime = (prepTime || 0) + (cookTime || 0);
 
@@ -51,19 +54,30 @@ export const RecipeCard = ({
           {description && (
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{description}</p>
           )}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            {totalTime > 0 && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>{totalTime} min</span>
-              </div>
-            )}
-            {servings && (
-              <div className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                <span>{servings} servings</span>
-              </div>
-            )}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              {totalTime > 0 && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{totalTime} min</span>
+                </div>
+              )}
+              {servings && (
+                <div className="flex items-center gap-1">
+                  <Users className="h-4 w-4" />
+                  <span>{servings} servings</span>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Avatar className="h-6 w-6">
+                <AvatarImage src={authorAvatarUrl || undefined} alt={authorUsername} />
+                <AvatarFallback className="text-xs">
+                  {authorUsername ? authorUsername.charAt(0).toUpperCase() : "U"}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-xs text-muted-foreground">{authorUsername}</span>
+            </div>
           </div>
         </CardContent>
         {tags && tags.length > 0 && (

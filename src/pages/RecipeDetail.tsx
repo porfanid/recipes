@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +31,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, Users, ArrowLeft, Bookmark, Flag, User as UserIcon, Pencil, Trash2 } from "lucide-react";
+import { Clock, Users, ArrowLeft, Bookmark, Flag, Pencil, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const RecipeDetail = () => {
@@ -56,7 +57,7 @@ const RecipeDetail = () => {
 
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("username")
+        .select("username, avatar_url")
         .eq("id", recipeData.author_id)
         .single();
 
@@ -269,7 +270,12 @@ const RecipeDetail = () => {
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <UserIcon className="h-5 w-5 text-primary" />
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={recipe.profiles?.avatar_url || undefined} alt={recipe.profiles?.username || "User"} />
+                  <AvatarFallback className="text-xs">
+                    {recipe.profiles?.username ? recipe.profiles.username.charAt(0).toUpperCase() : "U"}
+                  </AvatarFallback>
+                </Avatar>
                 <span>by {recipe.profiles?.username || "Unknown"}</span>
               </div>
             </div>

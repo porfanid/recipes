@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { User, Lock, Save } from "lucide-react";
+import { User, Lock, Save, Camera, Loader2 } from "lucide-react";
 import { z } from "zod";
 
 const profileSchema = z.object({
@@ -29,12 +30,15 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [profileLoading, setProfileLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
@@ -45,7 +49,7 @@ const Profile = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("username, bio")
+        .select("username, bio, avatar_url")
         .eq("id", user.id)
         .single();
 
@@ -54,6 +58,7 @@ const Profile = () => {
       if (data) {
         setUsername(data.username || "");
         setBio(data.bio || "");
+        setAvatarUrl(data.avatar_url);
       }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Failed to fetch profile";
@@ -66,6 +71,103 @@ const Profile = () => {
       setProfileLoading(false);
     }
   }, [user, toast]);
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a JPEG, PNG, GIF, or WebP image.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 2MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      // Delete old avatar if exists
+      if (avatarUrl) {
+        try {
+          // Extract the file path from the URL
+          const urlParts = avatarUrl.split('/avatars/');
+          if (urlParts.length > 1) {
+            const oldFilePath = urlParts[1];
+            await supabase.storage.from('avatars').remove([oldFilePath]);
+          }
+        } catch {
+          // Ignore errors when deleting old avatar
+        }
+      }
+
+      // Upload file to Supabase Storage
+      const fileNameParts = file.name.split('.');
+      const fileExt = fileNameParts.length > 1 ? fileNameParts.pop() : 'jpg';
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      const newAvatarUrl = urlData.publicUrl;
+
+      // Update profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: newAvatarUrl })
+        .eq("id", user.id);
+
+      if (updateError) throw updateError;
+
+      // Update Supabase Auth user metadata
+      const { error: authError } = await supabase.auth.updateUser({
+        data: { avatar_url: newAvatarUrl }
+      });
+
+      if (authError) throw authError;
+
+      setAvatarUrl(newAvatarUrl);
+      toast({
+        title: "Avatar updated!",
+        description: "Your profile picture has been updated successfully.",
+      });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload avatar";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingAvatar(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -192,6 +294,57 @@ const Profile = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto space-y-8">
           <h1 className="font-serif text-4xl font-bold">Profile Settings</h1>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Camera className="h-5 w-5" />
+                Profile Picture
+              </CardTitle>
+              <CardDescription>
+                Upload a profile picture to personalize your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  <Avatar className="h-24 w-24">
+                    <AvatarImage src={avatarUrl || undefined} alt={username} />
+                    <AvatarFallback className="text-2xl">
+                      {username ? username.charAt(0).toUpperCase() : user.email?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  {uploadingAvatar && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                      <Loader2 className="h-8 w-8 animate-spin text-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    id="avatar-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    {uploadingAvatar ? "Uploading..." : "Upload New Picture"}
+                  </Button>
+                  <p className="text-sm text-muted-foreground">
+                    JPEG, PNG, GIF, or WebP. Max 2MB.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>
