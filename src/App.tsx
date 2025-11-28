@@ -7,11 +7,13 @@ import { AuthProvider } from "@/lib/auth";
 import About from "./pages/About";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 import SubmitRecipe from "./pages/SubmitRecipe";
 import RecipeDetail from "./pages/RecipeDetail";
 import MyRecipes from "./pages/MyRecipes";
 import SavedRecipes from "./pages/SavedRecipes";
 import Admin from "./pages/Admin";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,10 +29,12 @@ const App = () => (
             <Route path="/" element={<About />} />
             <Route path="/recipes" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/submit" element={<SubmitRecipe />} />
             <Route path="/recipe/:id" element={<RecipeDetail />} />
             <Route path="/my-recipes" element={<MyRecipes />} />
             <Route path="/saved" element={<SavedRecipes />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
