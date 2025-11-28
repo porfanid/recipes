@@ -15,11 +15,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, Users, ArrowLeft, Bookmark, Flag, User as UserIcon } from "lucide-react";
+import { Clock, Users, ArrowLeft, Bookmark, Flag, User as UserIcon, Pencil, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const RecipeDetail = () => {
@@ -132,14 +143,46 @@ const RecipeDetail = () => {
         description: "Thank you for helping keep our community safe",
       });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error ? error.message : "Failed to submit report";
       toast({
         title: "Error",
-        description: error.message || "Failed to submit report",
+        description: errorMessage,
         variant: "destructive",
       });
     },
   });
+
+  const deleteRecipe = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Must be logged in");
+
+      const { error } = await supabase
+        .from("recipes")
+        .delete()
+        .eq("id", id!)
+        .eq("author_id", user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-recipes"] });
+      toast({
+        title: "Recipe deleted",
+        description: "Your recipe has been deleted successfully.",
+      });
+      navigate("/my-recipes");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete recipe. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const isOwner = user && recipe?.author_id === user.id;
 
   if (isLoading) {
     return (
@@ -240,7 +283,7 @@ const RecipeDetail = () => {
               </div>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               {user && (
                 <Button
                   variant={isSaved ? "default" : "outline"}
@@ -250,6 +293,43 @@ const RecipeDetail = () => {
                   <Bookmark className={`h-4 w-4 mr-2 ${isSaved ? "fill-current" : ""}`} />
                   {isSaved ? "Saved" : "Save Recipe"}
                 </Button>
+              )}
+
+              {isOwner && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(`/recipe/${id}/edit`)}
+                  >
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Recipe</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this recipe? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteRecipe.mutate()}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {deleteRecipe.isPending ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
               )}
 
               {user && recipe.author_id !== user.id && (
