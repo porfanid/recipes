@@ -1,8 +1,11 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/lib/auth";
 import { useUserRole } from "@/hooks/useUserRole";
-import { ChefHat, Plus, User, LogOut, Shield, UtensilsCrossed, Settings } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { ChefHat, Plus, LogOut, Shield, UtensilsCrossed, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +17,31 @@ import {
 export const Navbar = () => {
   const { user, signOut } = useAuth();
   const { data: isAdmin } = useUserRole();
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("username, avatar_url")
+        .eq("id", user.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const getAvatarFallback = () => {
+    if (profile?.username) {
+      return profile.username.charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
 
   return (
     <nav className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -42,8 +70,13 @@ export const Navbar = () => {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <User className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.username || "User"} />
+                      <AvatarFallback className="text-sm">
+                        {getAvatarFallback()}
+                      </AvatarFallback>
+                    </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
