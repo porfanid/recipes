@@ -34,7 +34,7 @@ const Auth = () => {
       const validatedEmail = emailSchema.parse(email);
 
       const { error } = await supabase.auth.resetPasswordForEmail(validatedEmail, {
-        redirectTo: `${window.location.origin}/#/profile`,
+        redirectTo: `${window.location.origin}/`,
       });
 
       if (error) throw error;
