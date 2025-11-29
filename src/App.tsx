@@ -16,6 +16,11 @@ import SavedRecipes from "./pages/SavedRecipes";
 import Admin from "./pages/Admin";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import PackagingIdeasIndex from "./pages/PackagingIdeasIndex";
+import SubmitPackagingIdea from "./pages/SubmitPackagingIdea";
+import EditPackagingIdea from "./pages/EditPackagingIdea";
+import PackagingIdeaDetail from "./pages/PackagingIdeaDetail";
+import MyPackagingIdeas from "./pages/MyPackagingIdeas";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +41,11 @@ const App = () => (
             <Route path="/recipe/:id" element={<RecipeDetail />} />
             <Route path="/my-recipes" element={<MyRecipes />} />
             <Route path="/saved" element={<SavedRecipes />} />
+            <Route path="/packaging-ideas" element={<PackagingIdeasIndex />} />
+            <Route path="/submit-packaging-idea" element={<SubmitPackagingIdea />} />
+            <Route path="/packaging-idea/:id/edit" element={<EditPackagingIdea />} />
+            <Route path="/packaging-idea/:id" element={<PackagingIdeaDetail />} />
+            <Route path="/my-packaging-ideas" element={<MyPackagingIdeas />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

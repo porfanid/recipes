@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      packaging_ideas: {
+        Row: {
+          approved_at: string | null
+          author_id: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          materials: string[]
+          moderator_notes: string | null
+          status: Database["public"]["Enums"]["recipe_status"]
+          steps: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          author_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          materials: string[]
+          moderator_notes?: string | null
+          status?: Database["public"]["Enums"]["recipe_status"]
+          steps: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          author_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          materials?: string[]
+          moderator_notes?: string | null
+          status?: Database["public"]["Enums"]["recipe_status"]
+          steps?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

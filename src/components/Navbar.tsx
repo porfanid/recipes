@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/lib/auth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
-import { ChefHat, Plus, LogOut, Shield, UtensilsCrossed, Settings, Info } from "lucide-react";
+import { ChefHat, Plus, LogOut, Shield, UtensilsCrossed, Settings, Info, Package } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,6 +64,13 @@ export const Navbar = () => {
               View Recipes
             </Link>
           </Button>
+        
+        <Button asChild variant="ghost" size="sm">
+            <Link to="/packaging-ideas" className="flex items-center gap-2">
+              <Package className="h-4 w-4" />
+              Packaging Ideas
+            </Link>
+          </Button>
 
         <div className="flex items-center gap-4">
 
@@ -96,6 +103,9 @@ export const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/my-recipes">My Recipes</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/my-packaging-ideas">My Packaging Ideas</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/saved">Saved Recipes</Link>
