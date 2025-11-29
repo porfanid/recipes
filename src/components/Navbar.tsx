@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/lib/auth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
-import { ChefHat, Plus, LogOut, Shield, UtensilsCrossed, Settings } from "lucide-react";
+import { ChefHat, Plus, LogOut, Shield, UtensilsCrossed, Settings, Info } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,14 +50,22 @@ export const Navbar = () => {
           <ChefHat className="h-6 w-6 text-primary" />
           <span className="font-serif text-xl font-semibold">Almondéa</span>
         </Link>
-
-        <div className="flex items-center gap-4">
-          <Button asChild variant="ghost" size="sm">
+        
+        <Button asChild variant="ghost" size="sm">
+            <Link to="/" className="flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              About Us
+            </Link>
+          </Button>
+        
+        <Button asChild variant="ghost" size="sm">
             <Link to="/recipes" className="flex items-center gap-2">
               <UtensilsCrossed className="h-4 w-4" />
               View Recipes
             </Link>
           </Button>
+
+        <div className="flex items-center gap-4">
 
           {user ? (
             <>
