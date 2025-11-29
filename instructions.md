@@ -8,6 +8,7 @@ This document provides instructions for deploying this application and migrating
 
 1. [Migrating from Lovable Cloud to New Supabase Instance](#migrating-from-lovable-cloud-to-new-supabase-instance)
 2. [Deploying RecipeShare to GitHub Pages](#deploying-recipeshare-to-github-pages)
+3. [Setting Up Packaging Repurposing Feature](#setting-up-packaging-repurposing-feature)
 
 ---
 
@@ -31,6 +32,7 @@ This section explains how to migrate users and recipes from the old Lovable Clou
    - `supabase/migrations/20251128173345_014b844f-060c-4fe4-82ea-d06b493b22a9.sql` (fixes update_updated_at function)
    - `supabase/migrations/20251129084447_1aa3fb85-efae-4750-bdb7-08472a055bf8.sql` (storage policies for avatars)
    - `supabase/migrations/20251129093123_recipe_images_storage.sql` (storage policies for recipe images)
+   - `supabase/migrations/20251129155523_packaging_ideas.sql` (creates packaging_ideas table for Package Repurposing feature)
 
 3. Create the `avatars` storage bucket:
    - Go to **Storage** in the Supabase Dashboard
@@ -289,3 +291,60 @@ Example for adding environment variables to the workflow (update the Build step 
 - The hash router means URLs will look like `https://username.github.io/repository-name/#/recipe/123` instead of `https://username.github.io/repository-name/recipe/123`
 - This is a trade-off for simplicity - the alternative would require a custom 404.html workaround
 - All internal navigation and deep linking will work correctly with hash routing
+
+---
+
+## Setting Up Packaging Repurposing Feature
+
+The Packaging Repurposing feature allows users to submit, edit, and share creative ideas for repurposing packaging materials. This feature has the same functionality as the recipes feature including admin approval/rejection workflow.
+
+### Database Setup
+
+Run the migration file `supabase/migrations/20251129155523_packaging_ideas.sql` in the Supabase SQL Editor. This creates:
+
+1. **packaging_ideas table** with the following columns:
+   - `id` (UUID, primary key)
+   - `title` (TEXT, required)
+   - `description` (TEXT, optional)
+   - `materials` (TEXT[], required - array of material names)
+   - `steps` (TEXT[], required - array of step descriptions)
+   - `image_url` (TEXT, optional)
+   - `author_id` (UUID, references auth.users)
+   - `status` (recipe_status enum: pending, approved, rejected)
+   - `moderator_notes` (TEXT, optional)
+   - `created_at` (TIMESTAMPTZ)
+   - `updated_at` (TIMESTAMPTZ)
+   - `approved_at` (TIMESTAMPTZ)
+
+2. **Row Level Security (RLS) policies:**
+   - Everyone can view approved packaging ideas
+   - Users can create packaging ideas (with pending status)
+   - Users can update their own pending packaging ideas
+   - Admins can update any packaging idea
+   - Users can delete their own packaging ideas
+   - Admins can delete any packaging idea
+
+3. **Triggers and indexes:**
+   - Trigger to auto-update `updated_at` on modifications
+   - Indexes on `status` and `author_id` for performance
+
+### Feature Routes
+
+After setup, the following routes are available:
+
+- `/packaging-ideas` - View all approved packaging ideas with search
+- `/submit-packaging-idea` - Submit a new packaging idea (authenticated users)
+- `/packaging-idea/:id` - View a specific packaging idea
+- `/packaging-idea/:id/edit` - Edit a packaging idea (owner only)
+- `/my-packaging-ideas` - View your own packaging ideas with status tabs
+
+### Admin Dashboard
+
+Admins can review pending packaging ideas in the Admin Dashboard under the "Pending Packaging Ideas" tab. The admin can:
+- View all pending ideas
+- Review details including materials and steps
+- Approve or reject ideas with optional moderator notes
+
+### Storage
+
+Packaging idea images are stored in the same `recipe-images` bucket under a `packaging/` folder prefix. No additional storage bucket setup is required.

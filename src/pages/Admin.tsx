@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AdminPendingRecipes } from "@/components/admin/AdminPendingRecipes";
+import { AdminPendingPackagingIdeas } from "@/components/admin/AdminPendingPackagingIdeas";
 import { AdminReports } from "@/components/admin/AdminReports";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 
@@ -45,12 +46,17 @@ const Admin = () => {
         <Tabs defaultValue="pending" className="w-full">
           <TabsList>
             <TabsTrigger value="pending">Pending Recipes</TabsTrigger>
+            <TabsTrigger value="packaging">Pending Packaging Ideas</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending" className="mt-6">
             <AdminPendingRecipes />
+          </TabsContent>
+
+          <TabsContent value="packaging" className="mt-6">
+            <AdminPendingPackagingIdeas />
           </TabsContent>
 
           <TabsContent value="reports" className="mt-6">
