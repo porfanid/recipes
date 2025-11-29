@@ -68,13 +68,13 @@ const Index = () => {
 
           {/* Search Bar */}
           <div className="max-w-xl mx-auto relative animate-fade-in">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5" />
             <Input
               type="text"
               placeholder="Search recipes, ingredients, or tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 h-12 text-lg bg-white/95 backdrop-blur-sm"
+              className="pl-12 h-12 text-lg bg-white/95 backdrop-blur-sm text-foreground"
             />
           </div>
         </div>
