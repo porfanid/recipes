@@ -115,21 +115,21 @@ const Profile = () => {
         }
       }
 
-      // Upload file to Supabase Storage
+      // Upload file to Supabase Storage with user-specific folder
       const fileNameParts = file.name.split('.');
       const fileExt = fileNameParts.length > 1 ? fileNameParts.pop() : 'jpg';
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file);
+        .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: urlData } = supabase.storage
         .from('avatars')
-        .getPublicUrl(fileName);
+        .getPublicUrl(filePath);
 
       const newAvatarUrl = urlData.publicUrl;
 
