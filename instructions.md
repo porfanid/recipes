@@ -1,6 +1,194 @@
-# Deploying RecipeShare to GitHub Pages
+# RecipeShare Instructions
 
-This document explains how to deploy this application to GitHub Pages using GitHub Actions.
+This document provides instructions for deploying this application and migrating data between Supabase instances.
+
+---
+
+## Table of Contents
+
+1. [Migrating from Lovable Cloud to New Supabase Instance](#migrating-from-lovable-cloud-to-new-supabase-instance)
+2. [Deploying RecipeShare to GitHub Pages](#deploying-recipeshare-to-github-pages)
+
+---
+
+## Migrating from Lovable Cloud to New Supabase Instance
+
+This section explains how to migrate users and recipes from the old Lovable Cloud Supabase instance to the new Supabase instance.
+
+### Prerequisites
+
+- Access to the **old Supabase project** (Lovable Cloud instance): `dlmdbncjpffrevdaeshs`
+- Access to the **new Supabase project**: `vrnlztosfbrtsbcaqsmd`
+- Supabase CLI installed (`npm install -g supabase`)
+- PostgreSQL client (psql) installed
+
+### Step 1: Set Up the New Supabase Instance
+
+1. Go to the [Supabase Dashboard](https://supabase.com/dashboard) and navigate to the new project (`vrnlztosfbrtsbcaqsmd`)
+
+2. Run the database migrations to set up the schema. You can do this via the Supabase Dashboard SQL Editor by running the migrations in order:
+   - `supabase/migrations/20251128173323_d914b8b0-f2cf-47f0-b0f7-25d5c27fe137.sql` (creates tables, enums, RLS policies)
+   - `supabase/migrations/20251128173345_014b844f-060c-4fe4-82ea-d06b493b22a9.sql` (fixes update_updated_at function)
+   - `supabase/migrations/20251129084447_1aa3fb85-efae-4750-bdb7-08472a055bf8.sql` (storage policies for avatars)
+
+3. Create the `avatars` storage bucket:
+   - Go to **Storage** in the Supabase Dashboard
+   - Click **New Bucket**
+   - Name it `avatars`
+   - Enable **Public bucket** option
+
+### Step 2: Export Data from Old Instance
+
+#### Option A: Using Supabase Dashboard (Recommended for smaller datasets)
+
+1. **Export Recipes:**
+   - Go to the old Supabase project's SQL Editor
+   - Run: `SELECT * FROM recipes;`
+   - Click **Download CSV** to export the data
+
+2. **Export Profiles:**
+   - Run: `SELECT * FROM profiles;`
+   - Download CSV
+
+3. **Export User Roles:**
+   - Run: `SELECT * FROM user_roles;`
+   - Download CSV
+
+4. **Export Saved Recipes:**
+   - Run: `SELECT * FROM saved_recipes;`
+   - Download CSV
+
+5. **Export Recipe Reports (if any):**
+   - Run: `SELECT * FROM recipe_reports;`
+   - Download CSV
+
+#### Option B: Using pg_dump (Recommended for larger datasets)
+
+1. Get the database connection string from the old Supabase project:
+   - Go to **Settings** > **Database** > **Connection string** > **URI**
+
+2. Export the public schema data:
+   ```bash
+   pg_dump "postgresql://postgres:[PASSWORD]@db.dlmdbncjpffrevdaeshs.supabase.co:5432/postgres" \
+     --data-only \
+     --schema=public \
+     --table=profiles \
+     --table=user_roles \
+     --table=recipes \
+     --table=saved_recipes \
+     --table=recipe_reports \
+     > data_export.sql
+   ```
+
+### Step 3: Migrate User Accounts
+
+**Important:** User authentication data is stored in `auth.users` which cannot be directly exported. You have two options:
+
+#### Option A: Users Re-register (Simplest)
+- Ask users to create new accounts on the new instance
+- This is the cleanest approach but loses user account history
+
+#### Option B: Using Supabase Auth Admin API (Preserves user IDs)
+
+1. Export user data from the old instance using the Supabase Management API or Dashboard
+2. Use the Supabase Admin API to create users in the new instance with the same UUIDs:
+
+   ```javascript
+   // Example script (run with Node.js)
+   const { createClient } = require('@supabase/supabase-js');
+
+   const supabaseAdmin = createClient(
+     'https://vrnlztosfbrtsbcaqsmd.supabase.co',
+     'YOUR_SERVICE_ROLE_KEY' // Use service role key, not anon key
+   );
+
+   // For each user from the old instance
+   const { data, error } = await supabaseAdmin.auth.admin.createUser({
+     email: 'user@example.com',
+     password: 'temporary_password', // User will need to reset
+     email_confirm: true,
+     user_metadata: { username: 'original_username' },
+     // Optionally specify the same UUID if you need to preserve references
+     // id: 'original-uuid-here'
+   });
+   ```
+
+3. After creating users, send password reset emails:
+   ```javascript
+   await supabaseAdmin.auth.admin.generateLink({
+     type: 'recovery',
+     email: 'user@example.com'
+   });
+   ```
+
+### Step 4: Import Data to New Instance
+
+#### Using Supabase Dashboard (for CSV exports):
+
+1. Go to the new Supabase project's Table Editor
+2. For each table (in order to respect foreign keys):
+   - **profiles** first (depends on auth.users)
+   - **user_roles** (depends on auth.users)
+   - **recipes** (depends on auth.users)
+   - **saved_recipes** (depends on auth.users and recipes)
+   - **recipe_reports** (depends on auth.users and recipes)
+
+3. Use **Import CSV** feature or manually insert via SQL Editor
+
+#### Using psql (for pg_dump exports):
+
+```bash
+psql "postgresql://postgres:[PASSWORD]@db.vrnlztosfbrtsbcaqsmd.supabase.co:5432/postgres" \
+  < data_export.sql
+```
+
+### Step 5: Migrate Storage (Avatars)
+
+1. Download all files from the old `avatars` bucket
+2. Upload them to the new `avatars` bucket maintaining the same folder structure
+
+You can use the Supabase JS client to automate this:
+
+```javascript
+const oldSupabase = createClient('OLD_URL', 'OLD_KEY');
+const newSupabase = createClient('NEW_URL', 'NEW_SERVICE_ROLE_KEY');
+
+// List files in old bucket
+const { data: files } = await oldSupabase.storage.from('avatars').list('', { limit: 1000 });
+
+// For each file, download from old and upload to new
+for (const file of files) {
+  const { data: blob } = await oldSupabase.storage.from('avatars').download(file.name);
+  await newSupabase.storage.from('avatars').upload(file.name, blob);
+}
+```
+
+### Step 6: Update Environment Variables
+
+Update your deployment environment (GitHub Secrets) with the new Supabase credentials:
+
+- `VITE_SUPABASE_URL`: `https://vrnlztosfbrtsbcaqsmd.supabase.co`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybmx6dG9zZmJydHNiY2Fxc21kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzNDgxMjAsImV4cCI6MjA3OTkyNDEyMH0.pnQwOCbp01sBUaIIxaN_S8zKUrbJ0AKVZ2tO6GssVKk`
+
+### Step 7: Verify Migration
+
+1. Deploy the application with the new environment variables
+2. Test user login (if users were migrated with Option B)
+3. Verify recipes appear correctly
+4. Check that saved recipes and user profiles work
+5. Test image uploads to the avatars bucket
+
+### Troubleshooting
+
+- **Foreign key violations during import:** Ensure you import tables in the correct order (users/profiles first, then dependent tables)
+- **UUID conflicts:** If using `pg_dump`, ensure the old and new schemas match exactly
+- **RLS blocking imports:** Use the service role key or temporarily disable RLS when importing
+
+---
+
+## Deploying RecipeShare to GitHub Pages
+
+This section explains how to deploy this application to GitHub Pages using GitHub Actions.
 
 ## Changes Made
 
