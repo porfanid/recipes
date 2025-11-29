@@ -78,9 +78,8 @@ const Auth = () => {
 
       toast({
         title: "Account created!",
-        description: "You can now start sharing recipes.",
+        description: "Please check your email to confirm your account before signing in.",
       });
-      navigate("/");
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Failed to create account";
       toast({
