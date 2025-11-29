@@ -30,11 +30,18 @@ This section explains how to migrate users and recipes from the old Lovable Clou
    - `supabase/migrations/20251128173323_d914b8b0-f2cf-47f0-b0f7-25d5c27fe137.sql` (creates tables, enums, RLS policies)
    - `supabase/migrations/20251128173345_014b844f-060c-4fe4-82ea-d06b493b22a9.sql` (fixes update_updated_at function)
    - `supabase/migrations/20251129084447_1aa3fb85-efae-4750-bdb7-08472a055bf8.sql` (storage policies for avatars)
+   - `supabase/migrations/20251129093123_recipe_images_storage.sql` (storage policies for recipe images)
 
 3. Create the `avatars` storage bucket:
    - Go to **Storage** in the Supabase Dashboard
    - Click **New Bucket**
    - Name it `avatars`
+   - Enable **Public bucket** option
+
+4. Create the `recipe-images` storage bucket:
+   - Go to **Storage** in the Supabase Dashboard
+   - Click **New Bucket**
+   - Name it `recipe-images`
    - Enable **Public bucket** option
 
 ### Step 2: Export Data from Old Instance
@@ -142,10 +149,10 @@ psql "postgresql://postgres:[PASSWORD]@db.vrnlztosfbrtsbcaqsmd.supabase.co:5432/
   < data_export.sql
 ```
 
-### Step 5: Migrate Storage (Avatars)
+### Step 5: Migrate Storage (Avatars and Recipe Images)
 
-1. Download all files from the old `avatars` bucket
-2. Upload them to the new `avatars` bucket maintaining the same folder structure
+1. Download all files from the old `avatars` and `recipe-images` buckets
+2. Upload them to the new buckets maintaining the same folder structure
 
 You can use the Supabase JS client to automate this:
 
@@ -153,13 +160,18 @@ You can use the Supabase JS client to automate this:
 const oldSupabase = createClient('OLD_URL', 'OLD_KEY');
 const newSupabase = createClient('NEW_URL', 'NEW_SERVICE_ROLE_KEY');
 
-// List files in old bucket
-const { data: files } = await oldSupabase.storage.from('avatars').list('', { limit: 1000 });
-
-// For each file, download from old and upload to new
-for (const file of files) {
+// Migrate avatars
+const { data: avatarFiles } = await oldSupabase.storage.from('avatars').list('', { limit: 1000 });
+for (const file of avatarFiles) {
   const { data: blob } = await oldSupabase.storage.from('avatars').download(file.name);
   await newSupabase.storage.from('avatars').upload(file.name, blob);
+}
+
+// Migrate recipe images
+const { data: recipeImageFiles } = await oldSupabase.storage.from('recipe-images').list('', { limit: 1000 });
+for (const file of recipeImageFiles) {
+  const { data: blob } = await oldSupabase.storage.from('recipe-images').download(file.name);
+  await newSupabase.storage.from('recipe-images').upload(file.name, blob);
 }
 ```
 
