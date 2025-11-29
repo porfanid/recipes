@@ -5,7 +5,9 @@ import { Navbar } from "@/components/Navbar";
 import { PackagingIdeaCard } from "@/components/PackagingIdeaCard";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Search, Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { Search, UtensilsCrossed, ChefHat, Plus, LogOut, Shield, Settings, Info, Package } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const PackagingIdeasIndex = () => {
@@ -54,13 +56,23 @@ const PackagingIdeasIndex = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-green-600 to-teal-600 text-white py-20">
+      <section className="gradient-warmth text-white py-20">
         <div className="container mx-auto px-4 text-center">
+        
+        <div className="flex justify-end mb-6 w-100">
+        <Button asChild variant="default" size="sm">
+                <Link to="/submit-packaging-idea" className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Submit Idea
+                </Link>
+              </Button>
+              </div>
+        
           <div className="flex justify-center mb-6">
             <Package className="h-16 w-16 animate-fade-in" />
           </div>
           <h1 className="font-serif text-5xl md:text-6xl font-bold mb-4 animate-fade-in text-balance">
-            Packaging Repurposing Ideas
+            Packaging Repurposing
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto animate-fade-in">
             Discover creative ways to repurpose packaging materials and reduce waste

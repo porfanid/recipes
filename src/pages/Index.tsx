@@ -5,7 +5,8 @@ import { Navbar } from "@/components/Navbar";
 import { RecipeCard } from "@/components/RecipeCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, UtensilsCrossed } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, UtensilsCrossed, ChefHat, Plus, LogOut, Shield, Settings, Info, Package } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
@@ -56,12 +57,23 @@ const Index = () => {
       {/* Hero Section */}
       <section className="gradient-warmth text-white py-20">
         <div className="container mx-auto px-4 text-center">
+        
+        <div className="flex justify-end mb-6 w-100">
+        <Button asChild variant="default" size="sm">
+                <Link to="/submit" className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Submit Recipe
+                </Link>
+              </Button>
+              </div>
           <div className="flex justify-center mb-6">
             <UtensilsCrossed className="h-16 w-16 animate-fade-in" />
           </div>
           <h1 className="font-serif text-5xl md:text-6xl font-bold mb-4 animate-fade-in text-balance">
             Discover & Share Amazing Recipes
           </h1>
+          
+              
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto animate-fade-in">
             A community-driven platform where home cooks share their favorite recipes
           </p>

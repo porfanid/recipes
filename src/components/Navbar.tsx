@@ -66,9 +66,9 @@ export const Navbar = () => {
           </Button>
         
         <Button asChild variant="ghost" size="sm">
-            <Link to="/packaging-ideas" className="flex items-center gap-2">
+            <Link to="/packaging-repurposing" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
-              Packaging Ideas
+              Packaging Repurposing
             </Link>
           </Button>
 
@@ -76,12 +76,6 @@ export const Navbar = () => {
 
           {user ? (
             <>
-              <Button asChild variant="default" size="sm">
-                <Link to="/submit" className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Submit Recipe
-                </Link>
-              </Button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

@@ -41,7 +41,7 @@ const App = () => (
             <Route path="/recipe/:id" element={<RecipeDetail />} />
             <Route path="/my-recipes" element={<MyRecipes />} />
             <Route path="/saved" element={<SavedRecipes />} />
-            <Route path="/packaging-ideas" element={<PackagingIdeasIndex />} />
+            <Route path="/packaging-repurposing" element={<PackagingIdeasIndex />} />
             <Route path="/submit-packaging-idea" element={<SubmitPackagingIdea />} />
             <Route path="/packaging-idea/:id/edit" element={<EditPackagingIdea />} />
             <Route path="/packaging-idea/:id" element={<PackagingIdeaDetail />} />
