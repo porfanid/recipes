@@ -75,7 +75,17 @@ const AuthCallback = () => {
             return;
           }
           
-          // Email confirmation or other auth - redirect to home
+          // Email confirmation after signup
+          if (type === "signup") {
+            toast({
+              title: "Email confirmed!",
+              description: "Your email has been confirmed. Welcome to RecipeShare!",
+            });
+            navigate("/", { replace: true });
+            return;
+          }
+          
+          // Other auth types - redirect to home
           toast({
             title: "Welcome!",
             description: "You've been successfully authenticated.",
