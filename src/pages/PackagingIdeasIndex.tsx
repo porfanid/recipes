@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
 import { PackagingIdeaCard } from "@/components/PackagingIdeaCard";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 import { Search, Package } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -135,9 +136,5 @@ const PackagingIdeasIndex = () => {
     </div>
   );
 };
-
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`rounded-lg border bg-card ${className}`}>{children}</div>;
-}
 
 export default PackagingIdeasIndex;
