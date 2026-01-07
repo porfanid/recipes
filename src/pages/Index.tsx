@@ -75,7 +75,7 @@ const Index = () => {
           
               
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto animate-fade-in">
-            A community-driven platform where home cooks share their favorite recipes
+            A community-driven platform where home cooks share their favorite Almondea recipes
           </p>
 
           {/* Search Bar */}
