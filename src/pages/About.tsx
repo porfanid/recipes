@@ -21,7 +21,7 @@ const About = () => {
             <img src={almondeaLogo} alt="Almondéa" className="h-32 w-auto animate-fade-in" />
           </div>
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto animate-fade-in">
-            A community driven platform where Almondea lovers can share their favorite Almondea – based recipes and their ideas for the repurposing of the Almondea package.
+            A community-driven platform where Almondea lovers can share their favorite Almondea-based recipes and their ideas for the repurposing of the Almondea package.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
             <Button asChild size="lg" variant="secondary">
@@ -95,7 +95,7 @@ const About = () => {
               </div>
               <h3 className="font-serif text-xl font-semibold mb-3">Passion</h3>
               <p className="text-muted-foreground">
-                The project is driven by the mission to serve health - conscious individuals and individuals with dietary restrictions.
+                The project is driven by the mission to serve health-conscious individuals and individuals with dietary restrictions.
               </p>
             </div>
 
